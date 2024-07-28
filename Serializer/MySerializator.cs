@@ -24,7 +24,7 @@ namespace Serializer
                 StringBuilder sb = new StringBuilder();
                 string delimiter = "";
                 // process fields
-                FieldInfo[] fields = typeof(T).GetFields(BindingFlags.NonPublic);
+                FieldInfo[] fields = typeof(T).GetFields(/*BindingFlags.Public | BindingFlags.NonPublic*/);
                 foreach (FieldInfo field in fields)
                 {
                     object? val = field.GetValue(obj);
@@ -33,7 +33,7 @@ namespace Serializer
                     delimiter = _delimeter;
                 }
                 // process properties
-                PropertyInfo[] properties = typeof(T).GetProperties(BindingFlags.NonPublic);
+                PropertyInfo[] properties = typeof(T).GetProperties(/*BindingFlags.Public | BindingFlags.NonPublic*/);
                 foreach (PropertyInfo property in properties)
                 {
                     object? val = property.GetValue(obj);

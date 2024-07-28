@@ -48,10 +48,24 @@
 //Время на десериализацию = 100 мс
 
 
+using System.Diagnostics;
+using System.Net.Http.Headers;
+using Serializer;
+
 internal class Program
 {
     private static void Main(string[] args)
     {
-        
+        ICustomSerializator iSerializator = new MySerializator();
+        SampleType st = new SampleType() { i1 = 1, i2 = 2, i3 = 3, i4 = 4/*, i5 = 5*/ };
+        string? result = null;
+        Stopwatch stopWatch = new Stopwatch();
+        Console.WriteLine($"Сериализация начата (0.000 сек.) ");
+        stopWatch.Start();
+        for (int i = 0; i < 1000; i++)
+             result = iSerializator.Serialize<SampleType>(st);
+        stopWatch.Stop();
+        Console.WriteLine($"Сериализация закончена за ({stopWatch.Elapsed.TotalSeconds} сек.) ");
+        Console.WriteLine($"Сериализованный объект: {result}");
     }
 }
