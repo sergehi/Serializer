@@ -73,8 +73,8 @@ namespace Serializer
                 if (properties.Any())
                     foreach (PropertyInfo property in properties.Take(new Range(0, properties.Length - 1)))
                     {
-                        ???
-                        property.SetValue(t, )
+                        //???
+                        //property.SetValue(t, )
                     }
                 if (fields.Any())
                     foreach (FieldInfo field in fields.Take(new Range(properties.Length, (properties.Length+ fields.Length) - 1)))
