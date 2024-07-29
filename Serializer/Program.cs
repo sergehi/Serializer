@@ -49,23 +49,75 @@
 
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Headers;
+using System.Reflection;
 using Serializer;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        ICustomSerializator iSerializator = new MySerializator();
-        SampleType st = new SampleType() { i1 = 1, i2 = 2, i3 = 3, i4 = 4/*, i5 = 5*/ };
-        string? result = null;
+        // "Самописная" сериализация в строку
+        ICustomSerializator iMySerializator = new MySerializator();
+        // "Самописная" сериализация в строку с кэшем для десериализации
+        ICustomSerializator iMyCachedSerializator = new MyCachedSerializator();
+        // сериализация/десериализация с помощью System.Text.Json.JsonSerializer
+        ICustomSerializator iJSONSerializator = new JSONSerializator();
+        
+
+        int iterCount = 1000000;
+        string? my_string = null;
+        string? json_string = null;
+
         Stopwatch stopWatch = new Stopwatch();
-        Console.WriteLine($"Сериализация начата (0.000 сек.) ");
+        Console.WriteLine($"0,000 сек.\tСериализация в строку начата (количество повторений: {iterCount}) ");
         stopWatch.Start();
-        for (int i = 0; i < 1000; i++)
-             result = iSerializator.Serialize<SampleType>(st);
+        for (int i = 0; i < iterCount; i++)
+             my_string = iMySerializator.Serialize<SampleType>(SampleType.Get());
         stopWatch.Stop();
-        Console.WriteLine($"Сериализация закончена за ({stopWatch.Elapsed.TotalSeconds} сек.) ");
-        Console.WriteLine($"Сериализованный объект: {result}");
+        Console.WriteLine($"{stopWatch.Elapsed.TotalSeconds} сек.\tСериализация закончена.");
+        Console.WriteLine($"Сериализованный объект: {my_string}");
+        
+        Console.WriteLine($"0,000 сек.\tСериализация в JSON начата (количество повторений: {iterCount}) ");
+        stopWatch.Restart();
+        for (int i = 0; i < iterCount; i++)
+            json_string = iJSONSerializator.Serialize<SampleType>(SampleType.Get());
+        stopWatch.Stop();
+        Console.WriteLine($"{stopWatch.Elapsed.TotalSeconds} сек.\tСериализация закончена.");
+        Console.WriteLine($"Сериализованный объект: {json_string}");
+
+        Console.WriteLine("");
+        Console.WriteLine($"0,000 сек.\tДесериализация из строки начата (количество повторений: {iterCount}) ");
+        stopWatch.Restart();
+        SampleType? my_object = null;
+        for (int i = 0; i < iterCount; i++)
+            my_object = iMySerializator.Deserialize<SampleType>(my_string ?? "");
+        stopWatch.Stop();
+        Console.WriteLine($"{stopWatch.Elapsed.TotalSeconds} сек.\tДесериализация закончена.");
+        Console.WriteLine($"Десериализованный объект: {my_object?.ToString()}");
+
+        Console.WriteLine("");
+        Console.WriteLine($"0,000 сек.\tДесериализация из строки с использованием кэширования начата (количество повторений: {iterCount}) ");
+        stopWatch.Restart();
+        my_object = null;
+        for (int i = 0; i < iterCount; i++)
+            my_object = iMyCachedSerializator.Deserialize<SampleType>(my_string ?? "");
+        stopWatch.Stop();
+        Console.WriteLine($"{stopWatch.Elapsed.TotalSeconds} сек.\tДесериализация закончена.");
+        Console.WriteLine($"Десериализованный объект: {my_object?.ToString()}");
+
+        Console.WriteLine($"0,000 сек.\tДесериализация из JSON начата (количество повторений: {iterCount}) ");
+        stopWatch.Restart();
+
+        for (int i = 0; i < iterCount; i++)
+            my_object = iJSONSerializator.Deserialize<SampleType>(json_string ?? "");
+        stopWatch.Stop();
+        Console.WriteLine($"{stopWatch.Elapsed.TotalSeconds} сек.\tДесериализация закончена.");
+        Console.WriteLine($"Десериализованный объект: {my_object?.ToString()}");
+
+
+        Console.WriteLine("Enter для выхода из программы...");
+        Console.ReadLine();
     }
 }

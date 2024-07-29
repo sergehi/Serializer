@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace Serializer
 {
-    internal class MySerializator : ICustomSerializator
+    internal class MyCachedSerializator : ICustomSerializator
     {
         private const string _delimeter = ";";
+        Dictionary<string, TypeConverter[]> converters_cache = new Dictionary<string, TypeConverter[]>();
+
 
         /// <summary>
         /// Object to string
@@ -62,6 +64,19 @@ namespace Serializer
         {
             try
             {
+                // cache
+                string? type_name = typeof(T).FullName;
+                TypeConverter[]? type_converters = null;
+                if (type_name is not null)
+                    converters_cache.TryGetValue(type_name, out type_converters);
+                if (type_converters is null)
+                    type_converters = new TypeConverter[typeof(T).GetFields().Length + typeof(T).GetProperties().Length];
+                if (type_converters is null)
+                    throw new Exception("Erorr creating cache!");
+
+                converters_cache[type_name ?? ""] = type_converters;
+                // cache
+
                 string[] strObjPFs = strObj.Split(_delimeter);
 
                 PropertyInfo[] properties = typeof(T).GetProperties();
@@ -74,12 +89,24 @@ namespace Serializer
                 int index = 0;
                 foreach (PropertyInfo property in properties)
                 {
-                    TypeConverter typeConverter = TypeDescriptor.GetConverter(property.PropertyType);
+                    TypeConverter typeConverter;
+                    if (type_converters is not null && type_converters[index] == null)
+                    {
+                        typeConverter = TypeDescriptor.GetConverter(property.PropertyType);
+                        type_converters[index] = typeConverter;
+                    }
+                    typeConverter = type_converters[index];
                     property.SetValue(t, typeConverter.ConvertFromString(strObjPFs[index++]));
                 }
                 foreach (FieldInfo field in fields)
                 {
-                    TypeConverter typeConverter = TypeDescriptor.GetConverter(field.FieldType);
+                    TypeConverter typeConverter;
+                    if (type_converters is not null && type_converters[index] == null)
+                    {
+                        typeConverter = TypeDescriptor.GetConverter(field.FieldType);
+                        type_converters[index] = typeConverter;
+                    }
+                    typeConverter = type_converters[index];
                     field.SetValue(t, typeConverter.ConvertFromString(strObjPFs[index++]));
                 }
                 return t;
