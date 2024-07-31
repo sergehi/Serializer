@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -11,15 +11,8 @@ namespace Serializer
     internal class MyCachedSerializator : ICustomSerializator
     {
         private const string _delimeter = ";";
-        Dictionary<string, TypeConverter[]> converters_cache = new Dictionary<string, TypeConverter[]>();
+        private Dictionary<string, TypeConverter[]> _converters_cache = new Dictionary<string, TypeConverter[]>();
 
-
-        /// <summary>
-        /// Object to string
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <returns></returns>
         public string? Serialize<T>(T obj) where T : class
         {
             try
@@ -54,12 +47,6 @@ namespace Serializer
             return null;
         }
 
-        /// <summary>
-        /// string to object
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="strObj"></param>
-        /// <returns></returns>
         public T? Deserialize<T>(string strObj) where T : class, new()
         {
             try
@@ -68,13 +55,15 @@ namespace Serializer
                 string? type_name = typeof(T).FullName;
                 TypeConverter[]? type_converters = null;
                 if (type_name is not null)
-                    converters_cache.TryGetValue(type_name, out type_converters);
+                    _converters_cache.TryGetValue(type_name, out type_converters);
                 if (type_converters is null)
                     type_converters = new TypeConverter[typeof(T).GetFields().Length + typeof(T).GetProperties().Length];
                 if (type_converters is null)
-                    throw new Exception("Erorr creating cache!");
-
-                converters_cache[type_name ?? ""] = type_converters;
+                {
+                    Console.WriteLine($"Ошибка при создании кэша для типа {type_name}");
+                    return null;
+                }
+                _converters_cache[type_name ?? ""] = type_converters;
                 // cache
 
                 string[] strObjPFs = strObj.Split(_delimeter);
@@ -83,7 +72,10 @@ namespace Serializer
                 FieldInfo[] fields = typeof(T).GetFields();
                 // first check
                 if (strObjPFs.Length != (fields.Length + properties.Length))
-                    throw new Exception("Не совпадает количество свойств+полей объекта и количество полей в строке. Выходим.");
+                {
+                    Console.WriteLine("Не совпадает количество свойств+полей объекта и количество полей в строке. Выходим.");
+                    return null;
+                }
 
                 T t = new();
                 int index = 0;

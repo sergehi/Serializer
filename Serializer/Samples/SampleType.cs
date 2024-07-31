@@ -15,16 +15,14 @@ namespace Serializer
         public int i3 { get; set; }
         public int i4 { get; set; }
         public int i5 { get; set; }
-        public int i6 { get; set; }
-        public int i7 { get; set; }
         public SampleType()
         {
         }
-        static public SampleType Get() => new SampleType() { i1 = 1, i2 = 2, i3 = 3, i4 = 4, i5 = 5, i6=6, i7=7 };
+        static public SampleType Get() => new SampleType() { i1 = 1, i2 = 2, i3 = 3, i4 = 4, i5 = 5};
 
         public override string ToString()
         {
-            return $"i1={i1}, i2={i2}, i3={i3}, i4={i4}, i5={i5}, i6={i6}, i7={i7}";
+            return $"i1={i1}, i2={i2}, i3={i3}, i4={i4}, i5={i5}";
         }
 
     }

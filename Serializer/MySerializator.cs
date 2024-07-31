@@ -63,12 +63,14 @@ namespace Serializer
             try
             {
                 string[] strObjPFs = strObj.Split(_delimeter);
-
                 PropertyInfo[] properties = typeof(T).GetProperties();
                 FieldInfo[] fields = typeof(T).GetFields();
                 // first check
                 if (strObjPFs.Length != (fields.Length + properties.Length))
-                    throw new Exception("Не совпадает количество свойств+полей объекта и количество полей в строке. Выходим.");
+                {
+                    Console.WriteLine("Не совпадает количество свойств+полей объекта и количество полей в строке. Выходим.");
+                    return null;
+                }
 
                 T t = new();
                 int index = 0;
