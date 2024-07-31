@@ -54,7 +54,8 @@ internal class Program
              my_string = iMySerializator.Serialize<SampleType>(SampleType.Get());
         stopWatch.Stop();
         Console.WriteLine($" - Время на сериализацию = {stopWatch.Elapsed.Milliseconds} мс.");
-        
+        Console.WriteLine($"     Результат сериализации: \"{my_string}\"");
+
         stopWatch.Restart();
         SampleType? my_object = null;
         for (int i = 0; i < iterCount; i++)
@@ -76,6 +77,7 @@ internal class Program
             json_string = iJSONSerializator.Serialize<SampleType>(SampleType.Get());
         stopWatch.Stop();
         Console.WriteLine($" - Время на сериализацию = {stopWatch.Elapsed.Milliseconds} мс.");
+        Console.WriteLine($"     Результат сериализации: \"{json_string}\"");
 
         stopWatch.Restart();
         for (int i = 0; i < iterCount; i++)
